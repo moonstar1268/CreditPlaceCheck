@@ -6,7 +6,7 @@
   <title>내 위치 공유하기</title>
 </head>
 <body>
-  <h2>📍 내 위치 공유 서비스</h2>
+  <h2>📍 크레디톡 내 위치 공유 서비스 📍</h2>
   <button onclick="shareLocation()">내 위치 확인하기</button>
   <div id="result"></div>
 
@@ -27,9 +27,12 @@
       const resultDiv = document.getElementById('result');
       
       resultDiv.innerHTML = `
+        <p>크레디톡 내 위치 공유 서비스입니다.</p>
+        <p>본 서비스는 법적 근거자료 등으로 활용될 수 없으니 참고용으로만 활용하세요. </p>
         <p>아래 주소를 상대방에게 메시지로 공유하여 내 위치를 공유하세요.</p>
         <input type="text" value="${googleMapsUrl}" id="link" style="width:80%;" readonly>
         <button onclick="copyLink()">복사하기</button>
+        <p>Copyright (C) 한국금융범죄예방연구센터. All rights reserved.<p>
       `;
     }
 
