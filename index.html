@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 위치 공유하기</title>
+</head>
+<body>
+  <h2>📍 내 위치 공유 서비스</h2>
+  <button onclick="shareLocation()">내 위치 확인하기</button>
+  <div id="result"></div>
+
+  <script>
+    function shareLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        alert("Geolocation이 지원되지 않는 브라우저입니다.");
+      }
+    }
+
+    function showPosition(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      
+      const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+      const resultDiv = document.getElementById('result');
+      
+      resultDiv.innerHTML = `
+        <p>아래 주소를 상대방에게 메시지로 공유하여 내 위치를 공유하세요.</p>
+        <input type="text" value="${googleMapsUrl}" id="link" style="width:80%;" readonly>
+        <button onclick="copyLink()">복사하기</button>
+      `;
+    }
+
+    function copyLink() {
+      const linkInput = document.getElementById('link');
+      linkInput.select();
+      linkInput.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      alert("링크가 복사되었습니다!");
+    }
+
+    function showError(error) {
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          alert("위치 접근 권한을 허용하지 않았습니다.");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("위치 정보를 사용할 수 없습니다.");
+          break;
+        case error.TIMEOUT:
+          alert("위치 정보를 가져오는 데 시간이 초과되었습니다.");
+          break;
+        default:
+          alert("알 수 없는 오류가 발생했습니다.");
+      }
+    }
+  </script>
+</body>
+</html>
