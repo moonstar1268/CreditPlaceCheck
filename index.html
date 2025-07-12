@@ -1,44 +1,83 @@
-function shareLocation() {
-  if (navigator.geolocation) {
-    document.getElementById('result').innerHTML = "<p>위치를 불러오는 중입니다...</p>";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 위치 공유하기</title>
+</head>
+<body>
+  <h2>📍 크레디톡 내 위치 공유 서비스 📍</h2>
+  <button onclick="shareLocation()">내 위치 확인하기</button>
+  <div id="result"></div>
 
-    // 타임아웃 옵션 추가: 7초 내 위치 못 받으면 에러 처리
-    navigator.geolocation.getCurrentPosition(showPosition, showError, {
-      enableHighAccuracy: true,  // 정확도 높이기 (GPS 적극 활용)
-      timeout: 7000,             // 7초 내로 못 받으면 바로 에러
-      maximumAge: 0              // 캐시된 위치 사용 금지 (항상 새 위치)
-    });
+  <script>
+    let timeoutCheck;
 
-    // 10초 뒤 버튼 추가
-    setTimeout(function(){
-      if(document.getElementById('result').innerHTML.includes("위치를 불러오는 중입니다")){
-        document.getElementById('result').innerHTML +=
-        '<button onclick="retryAccess()">위치 정보가 나오지 않나요?</button>';
+    function shareLocation() {
+      if (navigator.geolocation) {
+        document.getElementById('result').innerHTML = "<p>위치를 불러오는 중입니다... </p>";
+
+        // 10초 후에도 위치가 로드되지 않으면 버튼 추가
+        timeoutCheck = setTimeout(function(){
+          document.getElementById('result').innerHTML +=
+          '<button onclick="retryAccess()">위치 정보가 나오지 않나요?</button>';
+        }, 10000);
+
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        alert("Geolocation이 지원되지 않는 브라우저입니다.");
       }
-    }, 10000);
+    }
 
-  } else {
-    alert("Geolocation이 지원되지 않는 브라우저입니다.");
-  }
-}
+    function showPosition(position) {
+      clearTimeout(timeoutCheck); // 위치 성공 시 타임아웃 제거
 
-function showError(error) {
-  switch(error.code) {
-    case error.PERMISSION_DENIED:
-      alert("위치 접근 권한을 허용하지 않았습니다.");
-      break;
-    case error.POSITION_UNAVAILABLE:
-      alert("위치 정보를 사용할 수 없습니다.");
-      break;
-    case error.TIMEOUT:
-      alert("위치 정보를 가져오는 데 시간이 초과되었습니다. 다시 시도해 주세요.");
-      break;
-    default:
-      alert("알 수 없는 오류가 발생했습니다.");
-  }
-  document.getElementById('result').innerHTML = "";
-}
+      var lat = position.coords.latitude;
+      var lon = position.coords.longitude;
+      var googleMapsUrl = "https://www.google.com/maps?q=" + lat + "," + lon;
+      var resultDiv = document.getElementById('result');
 
-function retryAccess() {
-  window.location.href = 'https://creditplacecheck.netlify.app';
-}
+      resultDiv.innerHTML =
+        '<p>크레디톡 내 위치 공유 서비스입니다.</p>' +
+        '<p>본 서비스는 법적 근거자료 등으로 활용될 수 없으니 참고용으로만 활용하세요.</p>' +
+        '<p>아래 주소를 상대방에게 메시지로 공유하여 내 위치를 공유하세요.</p>' +
+        '<input type="text" value="' + googleMapsUrl + '" id="link" style="width:80%;" readonly>' +
+        '<button onclick="copyLink()">복사하기</button>' +
+        '<p>Copyright (C) 한국금융범죄예방연구센터. All rights reserved.</p>';
+    }
+
+    function copyLink() {
+      var linkInput = document.getElementById('link');
+      linkInput.select();
+      linkInput.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      alert("링크가 복사되었습니다!");
+    }
+
+    function showError(error) {
+      clearTimeout(timeoutCheck); // 위치 실패 시 타임아웃 제거
+
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          alert("위치 접근 권한을 허용하지 않았습니다.");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("위치 정보를 사용할 수 없습니다.");
+          break;
+        case error.TIMEOUT:
+          alert("위치 정보를 가져오는 데 시간이 초과되었습니다.");
+          break;
+        default:
+          alert("알 수 없는 오류가 발생했습니다.");
+      }
+
+      document.getElementById('result').innerHTML = "";
+    }
+
+    function retryAccess() {
+      // 앱에서 리다이렉션된 상태를 초기화하기 위해 다시 사이트를 로딩
+      window.location.href = 'https://creditplacecheck.netlify.app';
+    }
+  </script>
+</body>
+</html>
